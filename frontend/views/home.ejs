@@ -3,13 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evimere Energy Technologies NIG. LTD</title>
+    <title>Evimere Energy Technologies</title>
     <link rel="stylesheet" href="/css/home.css">
-    <script src="/js/home.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <main>
-        <h1>Welcome to Evimere Energy Technologies NIG. LTD</h1>
-        <p>Your trusted partner in energy solutions.</p>
-    </main>
+        <header>
+            <nav class="navbar">
+                <div class="logo">EVIMERE ENERGY TECHNOLOGIES NIG. LTD</div>
+                <ul class="nav-links">
+                    <li><a href="/" class="active">HOME</a></li>
+                    <li><a href="/about">ABOUT US</a></li>
+                    <li><a href="/services">SERVICES</a></li>
+                    <!-- <li><a href="#">PROJECTS</a></li> -->
+                    <!-- <li><a href="#">CAREERS</a></li> -->
+                    <li><a href="/contact">CONTACT</a></li>
+                </ul>
+            </nav>
+        </header>
+    <section id="home" class="page-section">
+            <main class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Innovating Sustainable Energy <br><span>Solutions for Nigeria</span></h1>
+                <div class="cta-buttons">
+                    <a href="/services" class="btn btn-primary">EXPLORE SERVICES</a>
+                    <a href="/contact" class="btn btn-outline">GET A QUOTE</a>
+                </div>
+            </div>
+        </main>
+    </section>
+    <section id="about" class="page-section styles">
+        <div>
+            <h2>About Evimere Energy Technologies</h2>
+            <p>Evimere Energy Technologies is a leading provider of innovative energy solutions in Nigeria. We specialize in renewable energy, energy efficiency, and sustainable development projects that drive economic growth and environmental stewardship.</p>
+        </div>
+    </section>
+    <section id="services" class="page-section styles">
+        <div>
+            <h2>Our Services</h2>
+            <div class="service-cards">
+                <div class="service-card">
+                    <h3>Renewable Energy Solutions</h3>
+                    <p>We design and implement solar, wind, and hydro energy systems tailored to your needs.</p>
+                </div>
+                <div class="service-card">
+                    <h3>Energy Efficiency Consulting</h3>
+                    <p>Our experts help you optimize energy use and reduce costs through innovative strategies.</p>
+                </div>
+                <div class="service-card">
+                    <h3>Sustainable Development Projects</h3>
+                    <p>We partner with communities and businesses to promote sustainable growth and environmental responsibility.</p>
+                </div>
+            </div>
+        </div>
+    <section id="contact" class="page-section styles">
+        <div class="contact-container">
+            <h2>Contact Us</h2>
+            <p>Have questions or need more information? Reach out to us!</p>
+        <form id="contact-form" class="contact-form">
+            <div class="form-group">
+                <input type="text" placeholder="First Name" required>
+            </div>
+            <div class="form-group">
+                <input type="email" placeholder="Email Address" required>
+            </div>
+            <div class="form-group-full">
+                <textarea rows="5" placeholder="How can we help you?" required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">ENQUIRE NOW</button>
+        </form>
+        </div>
+    </section>
+    <div class="scroll-controls">
+        <button id="scroll-up" class="scroll-btn hidden" aria-label="Scroll Up">
+            <span class="icon">↑</span>
+        </button>
+        <button id="scroll-down" class="scroll-btn" aria-label="Scroll Down">
+            <span class="icon">↓</span>
+        </button>
+    </div>
+<script src="/js/home.js"></script>
 <%- include('partials/footer') %>
