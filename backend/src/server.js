@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const path = require("path")
-// const routes = require("../src/routes");
+const routes = require("../src/routes/routes");
 
 // Initialize Express App
 const app = express();
@@ -19,7 +19,7 @@ app.set("views", path.join(__dirname, "..", ".." , "frontend", "views"));
 app.set("view engine", "ejs");
 
 // Routes
-// app.use("/", routes);
+app.use("/", routes);
     
 // Failback Route
 app.get("/", (req, res) => {
