@@ -1,157 +1,147 @@
 /**
- * EVIMERE ENERGY TECHNOLOGIES - SPA Navigation & Scroll Logic
+ * EVIMERE ENERGY TECHNOLOGIES - Final SPA Navigation
  */
 
-// --- DOM ELEMENTS ---
+// --- 1. DOM ELEMENTS ---
 const btnUp = document.getElementById('scroll-up');
 const btnDown = document.getElementById('scroll-down');
 const sections = Array.from(document.querySelectorAll('.page-section'));
-const navLinks = document.querySelectorAll('.nav-links a');
+const navLinks = Array.from(document.querySelectorAll('.nav-links a'));
 const menuToggle = document.querySelector('#mobile-menu');
 const menuContainer = document.querySelector('.nav-links');
 const contactForm = document.getElementById('contact-form');
 const contactBtn = document.getElementById('contactBtn');
 const formStatus = document.getElementById('form-status');
 
-// Flag to stop ScrollSpy from fighting manual clicks
-let isProcessingNav = false;
+// --- 2. CORE UTILITIES ---
 
-// --- 1. INITIALIZATION ---
-if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual';
-}
-
-// Reset view on fresh load
-window.scrollTo(0, 0);
-
-// --- 2. UI UPDATES (Buttons & Active States) ---
-const updateUI = () => {
-    const scrollPos = window.scrollY;
+const updateActiveState = (activeId) => {
+    const path = activeId === 'home' ? '/' : `/${activeId}`;
     
-    // Scroll Up Button
-    if (btnUp) btnUp.classList.toggle('hidden', scrollPos < 100);
+    // Sync URL only if it changed
+    if (window.location.pathname !== path) {
+        window.history.replaceState(null, null, path);
+    }
 
-    // Scroll Down Button
-    const lastSection = sections[sections.length - 1];
-    if (lastSection && btnDown) {
+    // Sync Navbar links
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        link.classList.toggle('active', linkPath === path);
+    });
+
+    // Handle Scroll Up Button Visibility
+    if (btnUp) btnUp.classList.toggle('hidden', window.scrollY < 200);
+
+    // Handle Scroll Down Button Visibility (hide at footer)
+    if (btnDown) {
+        const lastSection = sections[sections.length - 1];
         const rect = lastSection.getBoundingClientRect();
         btnDown.classList.toggle('hidden', rect.top <= 100);
     }
 };
 
-// --- 3. SCROLL SPY (URL Sync) ---
-const scrollSpyObserver = new IntersectionObserver((entries) => {
-    if (isProcessingNav) return;
+// --- 3. SCROLL LOGIC ---
 
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const id = entry.target.id;
-            const path = id === 'home' ? '/' : `/${id}`;
-            
-            window.history.replaceState(null, null, path);
-            
-            navLinks.forEach(link => {
-                const linkPath = link.getAttribute('href');
-                link.classList.toggle('active', linkPath === path);
-            });
-            updateUI();
+const handleScroll = () => {
+    let currentSectionId = "home";
+    const triggerBottom = window.innerHeight / 3; // Trigger when section is 1/3 up the screen
+
+    sections.forEach((section) => {
+        const sectionTop = section.getBoundingClientRect().top;
+        if (sectionTop < triggerBottom) {
+            currentSectionId = section.id;
         }
     });
-}, { threshold: 0.6 });
 
-sections.forEach(section => scrollSpyObserver.observe(section));
-
-// --- 4. NAVIGATION LOGIC ---
-
-const closeMenu = () => {
-    if (menuToggle && menuContainer) {
-        menuToggle.classList.remove('is-active');
-        menuContainer.classList.remove('active');
-    }
+    updateActiveState(currentSectionId);
 };
 
 const scrollToSection = (targetId) => {
     const targetSection = document.getElementById(targetId);
     if (targetSection) {
-        isProcessingNav = true;
-        targetSection.scrollIntoView({ behavior: 'smooth' });
-        
-        closeMenu();
+        // Close mobile menu
+        menuToggle?.classList.remove('is-active');
+        menuContainer?.classList.remove('active');
 
-        // Unlock ScrollSpy after animation finishes
-        setTimeout(() => { isProcessingNav = false; }, 850);
+        targetSection.scrollIntoView({ behavior: 'smooth' });
     }
 };
 
-// Global Click Handler
+// --- 4. EVENT LISTENERS ---
+
+// A. Navigation Clicks
 document.addEventListener('click', (e) => {
     const link = e.target.closest('a');
     
-    // MOBILE MENU: Close if clicking outside
-    if (menuContainer && menuContainer.classList.contains('active')) {
-        const isClickInsideMenu = menuContainer.contains(e.target);
-        const isClickOnToggle = menuToggle.contains(e.target);
-        if (!isClickInsideMenu && !isClickOnToggle) {
-            closeMenu();
+    // Click outside mobile menu logic
+    if (menuContainer?.classList.contains('active')) {
+        if (!menuContainer.contains(e.target) && !menuToggle.contains(e.target)) {
+            menuToggle.classList.remove('is-active');
+            menuContainer.classList.remove('active');
         }
     }
 
     if (!link) return;
-
     const href = link.getAttribute('href');
 
-    // 1. PROTOCOL LINKS (mailto, tel, etc.)
-    if (href && (href.includes(':') || link.target === "_blank")) {
-        // Let browser handle it; pause SPA logic briefly to prevent jumps
-        isProcessingNav = true;
-        setTimeout(() => { isProcessingNav = false; }, 500);
-        return; 
-    }
+    // Ignore protocol links
+    if (href?.includes(':') || link.target === "_blank") return;
 
-    // 2. SPA NAVIGATION
-    if (href && (href.startsWith('/') || href.startsWith('#'))) {
+    // SPA Navigation
+    if (href?.startsWith('/') || href?.startsWith('#')) {
         e.preventDefault();
         const targetId = (href === '/' || href === '#') ? 'home' : href.replace(/^\/|^#/, '');
         
-        if (href.startsWith('/')) {
-            window.history.pushState({}, "", href);
-        }
+        // Push state for back button support
+        if (href.startsWith('/')) window.history.pushState({}, "", href);
         scrollToSection(targetId);
     }
 });
 
-// Arrow Controls
-const navigate = (direction) => {
-    const currentId = window.location.pathname === '/' ? 'home' : window.location.pathname.replace('/', '');
-    const idx = sections.findIndex(s => s.id === currentId);
-    const targetIdx = direction === 'next' ? idx + 1 : idx - 1;
-    
+// B. Up/Down Arrow Logic
+const navigateStep = (direction) => {
+    let currentIdx = 0;
+    let minDistance = Infinity;
+
+    // Find section closest to the top
+    sections.forEach((section, index) => {
+        const distance = Math.abs(section.getBoundingClientRect().top);
+        if (distance < minDistance) {
+            minDistance = distance;
+            currentIdx = index;
+        }
+    });
+
+    const targetIdx = direction === 'next' ? currentIdx + 1 : currentIdx - 1;
     if (targetIdx >= 0 && targetIdx < sections.length) {
         scrollToSection(sections[targetIdx].id);
     }
 };
 
-if (btnDown) btnDown.addEventListener('click', () => navigate('next'));
-if (btnUp) btnUp.addEventListener('click', () => navigate('prev'));
+btnDown?.addEventListener('click', (e) => {
+    e.preventDefault();
+    navigateStep('next');
+});
 
-window.addEventListener('scroll', () => window.requestAnimationFrame(updateUI));
+btnUp?.addEventListener('click', (e) => {
+    e.preventDefault();
+    navigateStep('prev');
+});
 
-// --- 5. MOBILE MENU TOGGLE ---
+// C. Scroll and Form
+window.addEventListener('scroll', handleScroll, { passive: true });
+
 if (menuToggle) {
-    menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
+    menuToggle.addEventListener('click', () => {
         menuToggle.classList.toggle('is-active');
         menuContainer.classList.toggle('active');
     });
 }
 
-// --- 6. CONTACT FORM ---
+// --- 5. CONTACT FORM ---
 if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const formData = new FormData(contactForm);
-        const data = Object.fromEntries(formData.entries());
-        
         contactBtn.innerText = "SENDING...";
         contactBtn.disabled = true;
 
@@ -159,19 +149,14 @@ if (contactForm) {
             const response = await fetch('/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(Object.fromEntries(new FormData(contactForm)))
             });
             const result = await response.json();
-            if (result.success) {
-                formStatus.innerText = "Enquiry sent successfully!";
-                formStatus.style.color = "#28a745";
-                contactForm.reset();
-            } else {
-                formStatus.innerText = "Failed: " + result.message;
-                formStatus.style.color = "#dc3545";
-            }
-        } catch (err) {
-            formStatus.innerText = "Network error. Please try later.";
+            formStatus.innerText = result.success ? "Sent successfully!" : result.message;
+            formStatus.style.color = result.success ? "#28a745" : "#dc3545";
+            if (result.success) contactForm.reset();
+        } catch {
+            formStatus.innerText = "Error sending message.";
         } finally {
             contactBtn.innerText = "ENQUIRE NOW";
             contactBtn.disabled = false;
@@ -179,5 +164,7 @@ if (contactForm) {
     });
 }
 
-// Initial Run
-updateUI();
+// --- 6. STARTUP ---
+if (history.scrollRestoration) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+handleScroll();
