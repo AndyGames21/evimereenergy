@@ -1,129 +1,170 @@
 /**
- * EVIMERE ENERGY TECHNOLOGIES - SPA Navigation & Scroll Logic
+ * EVIMERE ENERGY TECHNOLOGIES - Final SPA Navigation
  */
 
+// --- 1. DOM ELEMENTS ---
 const btnUp = document.getElementById('scroll-up');
 const btnDown = document.getElementById('scroll-down');
-// We target .page-section for logic as requested
 const sections = Array.from(document.querySelectorAll('.page-section'));
-const navLinks = document.querySelectorAll('.nav-links a');
+const navLinks = Array.from(document.querySelectorAll('.nav-links a'));
+const menuToggle = document.querySelector('#mobile-menu');
+const menuContainer = document.querySelector('.nav-links');
+const contactForm = document.getElementById('contact-form');
+const contactBtn = document.getElementById('contactBtn');
+const formStatus = document.getElementById('form-status');
 
-// --- 1. REFRESH & LOAD BEHAVIOR ---
-if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual';
-}
+// --- 2. CORE UTILITIES ---
 
-// Force back to top/home on full refresh
-if (window.location.pathname !== '/') {
-    window.history.replaceState({}, "", "/");
-}
-
-window.addEventListener('beforeunload', () => {
-    window.scrollTo(0, 0);
-});
-
-// --- 2. BUTTON VISIBILITY LOGIC ---
-const updateButtons = () => {
-    const scrollPos = window.scrollY;
+const updateActiveState = (activeId) => {
+    const path = activeId === 'home' ? '/' : `/${activeId}`;
     
-    // Up button: hide if at top
-    if (scrollPos < 100) {
-        btnUp.classList.add('hidden');
-    } else {
-        btnUp.classList.remove('hidden');
+    // Sync URL only if it changed
+    if (window.location.pathname !== path) {
+        window.history.replaceState(null, null, path);
     }
 
-    // Down button: hide if at last section (Contact)
-    const lastSection = sections[sections.length - 1];
-    if (lastSection) {
+    // Sync Navbar links
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        link.classList.toggle('active', linkPath === path);
+    });
+
+    // Handle Scroll Up Button Visibility
+    if (btnUp) btnUp.classList.toggle('hidden', window.scrollY < 200);
+
+    // Handle Scroll Down Button Visibility (hide at footer)
+    if (btnDown) {
+        const lastSection = sections[sections.length - 1];
         const rect = lastSection.getBoundingClientRect();
-        if (rect.top <= 100) {
-            btnDown.classList.add('hidden');
-        } else {
-            btnDown.classList.remove('hidden');
-        }
+        btnDown.classList.toggle('hidden', rect.top <= 100);
     }
 };
 
-// --- 3. SCROLL SPY & URL SYNC (The "Manual Scroll" Fix) ---
-// This observes which section is currently in view
-const scrollSpyOptions = {
-    threshold: 0.5, // Trigger when 50% of section is visible
-    rootMargin: "-10% 0px -10% 0px" 
-};
+// --- 3. SCROLL LOGIC ---
 
-const scrollSpyObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const id = entry.target.id;
-            const path = id === 'home' ? '/' : `/${id}`;
-            
-            // Update URL without creating a massive back-button history
-            window.history.replaceState(null, null, path);
-            
-            // Update Navbar Active State
-            navLinks.forEach(link => {
-                const linkPath = link.getAttribute('href');
-                link.classList.toggle('active', linkPath === path);
-            });
+const handleScroll = () => {
+    let currentSectionId = "home";
+    const triggerBottom = window.innerHeight / 3; // Trigger when section is 1/3 up the screen
 
-            updateButtons();
+    sections.forEach((section) => {
+        const sectionTop = section.getBoundingClientRect().top;
+        if (sectionTop < triggerBottom) {
+            currentSectionId = section.id;
         }
     });
-}, scrollSpyOptions);
 
-sections.forEach(section => scrollSpyObserver.observe(section));
+    updateActiveState(currentSectionId);
+};
 
-// --- 4. NAVIGATION LOGIC (Buttons & Links) ---
+const scrollToSection = (targetId) => {
+    const targetSection = document.getElementById(targetId);
+    if (targetSection) {
+        // Close mobile menu
+        menuToggle?.classList.remove('is-active');
+        menuContainer?.classList.remove('active');
 
-const scrollToNext = (direction) => {
-    const currentPath = window.location.pathname;
-    const currentId = currentPath === '/' ? 'home' : currentPath.replace('/', '');
-    const currentIndex = sections.findIndex(s => s.id === currentId);
-
-    let targetIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-
-    if (targetIndex >= 0 && targetIndex < sections.length) {
-        sections[targetIndex].scrollIntoView({ behavior: 'smooth' });
+        targetSection.scrollIntoView({ behavior: 'smooth' });
     }
 };
 
-// Global click interceptor for all internal links
-document.addEventListener('click', (e) => {
-    const link = e.target.closest('.nav-links a, .btn, .btn-primary, .btn-outline');
-    if (!link) return;
+// --- 4. EVENT LISTENERS ---
 
+// A. Navigation Clicks
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    
+    // Click outside mobile menu logic
+    if (menuContainer?.classList.contains('active')) {
+        if (!menuContainer.contains(e.target) && !menuToggle.contains(e.target)) {
+            menuToggle.classList.remove('is-active');
+            menuContainer.classList.remove('active');
+        }
+    }
+
+    if (!link) return;
     const href = link.getAttribute('href');
 
-    if (href && href.startsWith('/')) {
-        e.preventDefault(); 
+    // Ignore protocol links
+    if (href?.includes(':') || link.target === "_blank") return;
+
+    // SPA Navigation
+    if (href?.startsWith('/') || href?.startsWith('#')) {
+        e.preventDefault();
+        const targetId = (href === '/' || href === '#') ? 'home' : href.replace(/^\/|^#/, '');
         
-        const targetId = href === '/' ? 'home' : href.replace('/', '');
-        const targetSection = document.getElementById(targetId);
-        
-        if (targetSection) {
-            // PushState for manual clicks so the Back button works
-            window.history.pushState({}, "", href);
-            targetSection.scrollIntoView({ behavior: 'smooth' });
-        }
+        // Push state for back button support
+        if (href.startsWith('/')) window.history.pushState({}, "", href);
+        scrollToSection(targetId);
     }
 });
 
-// --- 5. EVENT LISTENERS ---
+// B. Up/Down Arrow Logic
+const navigateStep = (direction) => {
+    let currentIdx = 0;
+    let minDistance = Infinity;
 
-btnDown.addEventListener('click', () => scrollToNext('next'));
-btnUp.addEventListener('click', () => scrollToNext('prev'));
+    // Find section closest to the top
+    sections.forEach((section, index) => {
+        const distance = Math.abs(section.getBoundingClientRect().top);
+        if (distance < minDistance) {
+            minDistance = distance;
+            currentIdx = index;
+        }
+    });
 
-window.addEventListener('popstate', () => {
-    const path = window.location.pathname;
-    const targetId = path === '/' ? 'home' : path.replace('/', '');
-    const targetSection = document.getElementById(targetId);
-    if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth' });
+    const targetIdx = direction === 'next' ? currentIdx + 1 : currentIdx - 1;
+    if (targetIdx >= 0 && targetIdx < sections.length) {
+        scrollToSection(sections[targetIdx].id);
+    }
+};
+
+btnDown?.addEventListener('click', (e) => {
+    e.preventDefault();
+    navigateStep('next');
 });
 
-window.addEventListener('scroll', () => {
-    window.requestAnimationFrame(updateButtons);
+btnUp?.addEventListener('click', (e) => {
+    e.preventDefault();
+    navigateStep('prev');
 });
 
-// Set initial state
-updateButtons();
+// C. Scroll and Form
+window.addEventListener('scroll', handleScroll, { passive: true });
+
+if (menuToggle) {
+    menuToggle.addEventListener('click', () => {
+        menuToggle.classList.toggle('is-active');
+        menuContainer.classList.toggle('active');
+    });
+}
+
+// --- 5. CONTACT FORM ---
+if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        contactBtn.innerText = "SENDING...";
+        contactBtn.disabled = true;
+
+        try {
+            const response = await fetch('/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(new FormData(contactForm)))
+            });
+            const result = await response.json();
+            formStatus.innerText = result.success ? "Sent successfully!" : result.message;
+            formStatus.style.color = result.success ? "#28a745" : "#dc3545";
+            if (result.success) contactForm.reset();
+        } catch {
+            formStatus.innerText = "Error sending message.";
+        } finally {
+            contactBtn.innerText = "ENQUIRE NOW";
+            contactBtn.disabled = false;
+        }
+    });
+}
+
+// --- 6. STARTUP ---
+if (history.scrollRestoration) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+handleScroll();

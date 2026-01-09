@@ -22,7 +22,7 @@ app.set("view engine", "ejs");
 // Routes
 app.use("/", routes);
     
-// Failback Route
+// Fallback Route
 app.get("/", (req, res) => {
   res.render("home", { title: "Home - Evimere Energy" });
 });
