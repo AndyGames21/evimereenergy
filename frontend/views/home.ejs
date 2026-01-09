@@ -14,14 +14,21 @@
         <header>
             <nav class="navbar">
                 <div class="logo">
-                    <img src="/images/logo.png" alt="Evimere Energy Logo" class="logo-image">
-                    EVIMERE ENERGY TECHNOLOGIES NIG. LTD
+                    <img src="/images/logo.png" alt="Logo" class="logo-image">
+                    <span>Evimere Energy Technologies NIG. LTD</span>
                 </div>
+
+                <div class="menu-toggle" id="mobile-menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+
                 <ul class="nav-links">
-                    <li><a href="/" class="active">HOME</a></li>
-                    <li><a href="/about">ABOUT US</a></li>
-                    <li><a href="/services">SERVICES</a></li>
-                    <li><a href="/contact">CONTACT</a></li>
+                    <li><a href="/" class="active">Home</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/services">Services</a></li>
+                    <li><a href="/contact">Contact</a></li>
                 </ul>
             </nav>
         </header>
@@ -38,9 +45,13 @@
         </main>
     </section>
     <section id="about" class="page-section styles">
-        <div>
+        <div class="about-content">
             <h2>About Evimere Energy Technologies</h2>
-            <p>Evimere Energy Technologies is a leading provider of innovative energy solutions in Nigeria. We specialize in renewable energy, energy efficiency, and sustainable development projects that drive economic growth and environmental stewardship.</p>
+            <p>
+                Evimere Energy Technologies is a premier <strong>EPCI (Engineering, Procurement, Construction, and Installation)</strong> firm 
+                dedicated to delivering high-complexity energy infrastructure across Nigeria. We provide a single point of accountability 
+                by integrating world-class engineering design with strategic procurement and robust construction management.
+            </p>
         </div>
     </section>
     <section id="services" class="page-section styles">
@@ -89,20 +100,20 @@
                         <p><a href="tel:+2348033106002">+234 803 310 6002</a></p>
                     </div>
                 </div>
-
                 <form id="contact-form" class="contact-form">
                     <div class="input-row">
                         <div class="form-group">
-                            <input type="text" placeholder="First Name" required>
+                            <input type="text" name="firstName" placeholder="First Name" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" placeholder="Email Address" required>
+                            <input type="email" name="email" placeholder="Email Address" required>
                         </div>
                     </div>
                     <div class="form-group-full">
-                        <textarea rows="5" placeholder="How may we assist you..."></textarea>
+                        <textarea name="message" rows="5" placeholder="How may we assist you..." required></textarea>
                     </div>
-                    <button type="submit" class="btn-submit">ENQUIRE NOW</button>
+                    <button type="submit" class="btn-submit" id="contactBtn">ENQUIRE NOW</button>
+                    <div id="form-status" class="form-status"></div>
                 </form>
             </div>
         </div>

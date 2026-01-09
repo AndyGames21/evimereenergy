@@ -127,3 +127,87 @@ window.addEventListener('scroll', () => {
 
 // Set initial state
 updateButtons();
+
+// Contact Form Submission Logic
+const contactForm = document.getElementById('contact-form');
+const contactBtn = document.getElementById('contactBtn');
+const formStatus = document.getElementById('form-status'); // New selector
+
+if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(contactForm);
+        const data = {
+            firstName: formData.get('firstName'),
+            email: formData.get('email'),
+            message: formData.get('message')
+        };
+
+        // Reset status message and button
+        formStatus.innerText = "";
+        contactBtn.innerText = "SENDING...";
+        contactBtn.disabled = true;
+
+        try {
+            const response = await fetch('/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                formStatus.innerText = "Enquiry sent successfully!";
+                formStatus.style.color = "#28a745"; 
+                contactForm.reset();
+
+                setTimeout(() => {
+                    formStatus.innerText = "";
+                }, 5000);
+            } else {
+                // SERVER ERROR
+                formStatus.innerText = "Error: " + (result.message || "Something went wrong.");
+                formStatus.style.color = "#dc3545";
+            }
+        } catch (error) {
+            formStatus.innerText = "Could not connect to server.";
+            formStatus.style.color = "#dc3545";
+        } finally {
+            contactBtn.innerText = "ENQUIRE NOW";
+            contactBtn.disabled = false;
+        }
+    });
+}
+
+// Hamburger Menu Logic
+// Mobile Menu Logic
+const menu = document.querySelector('#mobile-menu');
+const menuLinks = document.querySelector('.nav-links');
+
+if (menu) {
+    menu.addEventListener('click', function() {
+        menu.classList.toggle('is-active');
+        menuLinks.classList.toggle('active');
+    });
+}
+
+// Close menu when a link is clicked (useful for one-page scrolling)
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        menu.classList.remove('is-active');
+        menuLinks.classList.remove('active');
+    });
+});
+
+document.addEventListener('click', function(event) {
+    const isClickInsideMenu = menuLinks.contains(event.target);
+    const isClickInsideToggle = menu.contains(event.target);
+
+    // If the menu is open and the user clicks outside both the menu and the button
+    if (menuLinks.classList.contains('active') && !isClickInsideMenu && !isClickInsideToggle) {
+        menu.classList.remove('is-active');
+        menuLinks.classList.remove('active');
+    }
+});
