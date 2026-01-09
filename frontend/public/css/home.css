@@ -15,49 +15,74 @@ body {
   background: #000;
 }
 
-/* Navbar Alignment Fix */
+/* Navbar Alignment */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30px 10%;
+  padding: 20px 10%; /* Reduced vertical padding to account for larger logo */
   position: absolute;
   width: 100%;
   z-index: 10;
 }
 
 .logo {
+  display: flex;      
+  align-items: center; 
+  gap: 12px;            
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 2px;
+  /* Keep the text small and professional */
+  font-size: 0.85rem;   
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #fff;
+}
+
+.logo-image {
+  /* Increased size for visual impact */
+  height: 80px;         
+  width: auto;           
+  object-fit: contain;
+  /* Optional: slight glow to match your brand blue */
+  filter: drop-shadow(0 0 8px rgba(66, 182, 233, 0.3)); 
+  transition: transform 0.3s ease;
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
 }
 
 .nav-links {
   display: flex;
   list-style: none;
+  align-items: center;  
 }
 
 .nav-links li {
-  margin-left: 30px;
+  margin-left: 35px;
 }
 
 .nav-links a {
   text-decoration: none;
   color: #ccc;
-  font-size: 0.9rem;
+  /* Maintains the "aesthetic small" look */
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 1px;
   transition: 0.3s;
+  padding-bottom: 5px;
 }
 
 .nav-links a:hover,
 .nav-links a.active {
-  color: #fff;
-  border-bottom: 2px solid #fff;
+  color: #42b6e9; /* Light blue color you like */
+  border-bottom: 2px solid #42b6e9;
 }
 
 /* Hero Section */
 .hero {
   height: 100vh;
-  background: url("/images/homepage.jpg") no-repeat center center/cover;
+  background: url("/images/homepage.webp") no-repeat center center/cover;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,42 +168,60 @@ h1 {
   color: #cccccc;
 }
 
-/* Service Cards Grid */
-.service-cards {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin: 40px 0;
-  flex-wrap: wrap;
-  /* Wraps on smaller screens */
+/* Services Section Layout */
+/* Services Section Layout */
+#services.styles {
+    display: block; /* Overrides the flex centering that breaks the grid */
+    text-align: center;
+    padding: 100px 10%;
 }
 
+#services h2 {
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    margin-bottom: 60px;
+    color: #42b6e9;
+    text-transform: uppercase;
+}
+
+/* THE GRID SYSTEM - This makes them a straight line */
+.service-cards {
+    display: grid;
+    /* Forces exactly 3 columns on desktop */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: stretch; /* Ensures all boxes are same height */
+}
+
+/* Individual Card Styling */
 .service-card {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 30px;
-  border-radius: 12px;
-  flex: 1;
-  min-width: 300px;
-  /* Prevents cards from getting too thin */
-  max-width: 400px;
-  border: 1px solid rgba(66, 182, 233, 0.2);
-  transition: transform 0.3s ease, background 0.3s ease;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px 30px;
+    border-radius: 24px;
+    text-align: left; /* Keeps text inside cards professional */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .service-card:hover {
-  transform: translateY(-10px);
-  background: rgba(66, 182, 233, 0.1);
-  border-color: #42b6e9;
+    transform: translateY(-10px);
+    background: rgba(66, 182, 233, 0.05);
+    border-color: rgba(66, 182, 233, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
+/* Ensures titles are always aligned across the row */
 .service-card h3 {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-  color: #ffffff;
-}
-
-.service-card p {
-  font-size: 0.95rem;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 20px;
+    line-height: 1.4;
+    min-height: 4rem; /* Match this to the height of your longest title */
 }
 
 /* Scroll Button */
@@ -231,48 +274,91 @@ h1 {
   background-color: #ffffff;
   color: #42b6e9;
 }
-/* Contact Container */
+/* Main Contact Section Container */
 .contact-container {
     width: 100%;
-    max-width: 650px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 40px;
+    padding: 60px 50px;
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
+    border-radius: 30px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* Form Grid */
-.contact-form {
-    margin-top: 35px;
+/* Header Text Styling */
+.contact-container h2 {
+    color: #42b6e9;
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+/* The 2-Column Grid Wrapper */
+.contact-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    grid-template-columns: 1fr 1.6fr; 
+    gap: 80px;
+    margin-top: 50px;
+    text-align: left;
+}
+
+/* Left Column: Info Blocks */
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.info-block .label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #42b6e9;
+    margin-bottom: 12px;
+}
+
+.info-block p, 
+.info-block a {
+    font-size: 1.1rem;
+    color: #fff;
+    text-decoration: none;
+    line-height: 1.6;
+}
+
+/* Right Column: The Form */
+.contact-form {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
 }
 
-/* Helper for full-width elements in the grid */
-.form-group-full {
-    grid-column: span 2;
+/* Horizontal row for First Name and Email */
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 /* Unified Input & Textarea Styling */
 .form-group input, 
 .form-group-full textarea {
     width: 100%;
-    padding: 16px 20px;
-    background: rgba(0, 0, 0, 0.2);
+    padding: 18px 25px;
+    background: rgba(0, 0, 0, 0.3);
     border: 1.5px solid rgba(66, 182, 233, 0.2);
     border-radius: 12px;
     color: #fff;
     font-family: inherit;
     font-size: 1rem;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    resize: none; /* Prevents user from breaking the layout */
+    resize: none;
 }
 
-/* Remove default focus outline and apply brand glow */
+/* Focus Glow Effect */
 .form-group input:focus, 
 .form-group-full textarea:focus {
     outline: none;
@@ -282,20 +368,20 @@ h1 {
     transform: translateY(-2px);
 }
 
-/* Button Styling */
+/* Submit Button Styling */
 .btn-submit {
-    grid-column: span 2;
-    padding: 18px;
+    padding: 20px;
     background: linear-gradient(135deg, #42b6e9 0%, #35a5d4 100%);
     color: white;
     border: none;
     border-radius: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 10px 20px rgba(66, 182, 233, 0.3);
+    margin-top: 10px;
 }
 
 .btn-submit:hover {

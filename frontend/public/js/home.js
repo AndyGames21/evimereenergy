@@ -1,86 +1,42 @@
-// Reset Scroll and URL Behavior for SPA Navigation
-// 1. Force Scroll to Top on Refresh
+/**
+ * EVIMERE ENERGY TECHNOLOGIES - SPA Navigation & Scroll Logic
+ */
+
+const btnUp = document.getElementById('scroll-up');
+const btnDown = document.getElementById('scroll-down');
+// We target .page-section for logic as requested
+const sections = Array.from(document.querySelectorAll('.page-section'));
+const navLinks = document.querySelectorAll('.nav-links a');
+
+// --- 1. REFRESH & LOAD BEHAVIOR ---
 if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual'; // Prevents browser from remembering scroll position
+    history.scrollRestoration = 'manual';
 }
 
-window.addEventListener('beforeunload', () => {
-    window.scrollTo(0, 0); // Jump to top right before the reload happens
-});
-
-// 2. Reset URL to Home on Load
+// Force back to top/home on full refresh
 if (window.location.pathname !== '/') {
     window.history.replaceState({}, "", "/");
 }
 
-// Function to handle routing and scrolling
-const handleRouting = (isInitialLoad = false) => {
-    const path = window.location.pathname;
-    // Map '/' to 'home', otherwise strip the '/'
-    const targetId = path === '/' ? 'home' : path.replace('/', '');
-    const targetSection = document.getElementById(targetId);
-
-    if (targetSection) {
-        targetSection.scrollIntoView({ 
-            behavior: isInitialLoad ? 'auto' : 'smooth', 
-            block: 'start' 
-        });
-    }
-};
-
-// History API Based SPA Navigation
-// 1. Handle Clicks (The "No-Refresh" Part)
-document.addEventListener('click', (e) => {
-    const link = e.target.closest('.nav-links a, .btn');
-    if (!link) return;
-
-    const href = link.getAttribute('href');
-
-    // If it's an internal link, stop the refresh
-    if (href.startsWith('/')) {
-        e.preventDefault(); 
-        
-        // Update URL bar
-        window.history.pushState({}, "", href);
-        
-        // Scroll smoothly
-        handleRouting();
-    }
+window.addEventListener('beforeunload', () => {
+    window.scrollTo(0, 0);
 });
 
-// 2. Handle Direct Refresh & Initial Load
-window.addEventListener('load', () => {
-    // We use 'auto' on load so it jumps to the section immediately 
-    // without a long scrolling animation from the top.
-    handleRouting(true);
-});
-
-// 3. Handle Back/Forward Buttons
-window.addEventListener('popstate', () => handleRouting());
-
-// Scroll Button
-const btnUp = document.getElementById('scroll-up');
-const btnDown = document.getElementById('scroll-down');
-const sections = Array.from(document.querySelectorAll('.page-section'));
-
-/**
- * Update button visibility based on scroll position
- */
+// --- 2. BUTTON VISIBILITY LOGIC ---
 const updateButtons = () => {
     const scrollPos = window.scrollY;
     
-    // 1. Logic for 'Up' Button: Hide if at the very top (Home)
+    // Up button: hide if at top
     if (scrollPos < 100) {
         btnUp.classList.add('hidden');
     } else {
         btnUp.classList.remove('hidden');
     }
 
-    // 2. Logic for 'Down' Button: Hide if at the last section (Contact)
+    // Down button: hide if at last section (Contact)
     const lastSection = sections[sections.length - 1];
     if (lastSection) {
         const rect = lastSection.getBoundingClientRect();
-        // If the top of the contact section is within 100px of the top of the viewport
         if (rect.top <= 100) {
             btnDown.classList.add('hidden');
         } else {
@@ -89,75 +45,85 @@ const updateButtons = () => {
     }
 };
 
-/**
- * Handle smooth scrolling between sections
- */
+// --- 3. SCROLL SPY & URL SYNC (The "Manual Scroll" Fix) ---
+// This observes which section is currently in view
+const scrollSpyOptions = {
+    threshold: 0.5, // Trigger when 50% of section is visible
+    rootMargin: "-10% 0px -10% 0px" 
+};
+
+const scrollSpyObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const id = entry.target.id;
+            const path = id === 'home' ? '/' : `/${id}`;
+            
+            // Update URL without creating a massive back-button history
+            window.history.replaceState(null, null, path);
+            
+            // Update Navbar Active State
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                link.classList.toggle('active', linkPath === path);
+            });
+
+            updateButtons();
+        }
+    });
+}, scrollSpyOptions);
+
+sections.forEach(section => scrollSpyObserver.observe(section));
+
+// --- 4. NAVIGATION LOGIC (Buttons & Links) ---
+
 const scrollToNext = (direction) => {
-    // Determine current section based on URL path
     const currentPath = window.location.pathname;
     const currentId = currentPath === '/' ? 'home' : currentPath.replace('/', '');
     const currentIndex = sections.findIndex(s => s.id === currentId);
 
     let targetIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
 
-    // Boundary check to ensure we don't scroll past the array limits
     if (targetIndex >= 0 && targetIndex < sections.length) {
-        const targetSection = sections[targetIndex];
-        
-        // Update URL bar for professional SPA feel
-        const newPath = targetSection.id === 'home' ? '/' : `/${targetSection.id}`;
-        window.history.pushState({}, "", newPath);
-
-        // Perform the smooth scroll
-        targetSection.scrollIntoView({ behavior: 'smooth' });
+        sections[targetIndex].scrollIntoView({ behavior: 'smooth' });
     }
 };
 
-/**
- * Handle global link clicks for SPA behavior
- * Intercepts navbar and section buttons
- */
+// Global click interceptor for all internal links
 document.addEventListener('click', (e) => {
-    const link = e.target.closest('.nav-links a, a.btn');
+    const link = e.target.closest('.nav-links a, .btn, .btn-primary, .btn-outline');
     if (!link) return;
 
     const href = link.getAttribute('href');
+
     if (href && href.startsWith('/')) {
-        e.preventDefault();
+        e.preventDefault(); 
         
         const targetId = href === '/' ? 'home' : href.replace('/', '');
         const targetSection = document.getElementById(targetId);
-
+        
         if (targetSection) {
+            // PushState for manual clicks so the Back button works
             window.history.pushState({}, "", href);
             targetSection.scrollIntoView({ behavior: 'smooth' });
-            // Manually trigger button update in case scroll event is delayed
-            setTimeout(updateButtons, 500); 
         }
     }
 });
 
-/**
- * Event Listeners
- */
+// --- 5. EVENT LISTENERS ---
+
 btnDown.addEventListener('click', () => scrollToNext('next'));
 btnUp.addEventListener('click', () => scrollToNext('prev'));
 
-// Listen for browser Back/Forward buttons
 window.addEventListener('popstate', () => {
     const path = window.location.pathname;
     const targetId = path === '/' ? 'home' : path.replace('/', '');
     const targetSection = document.getElementById(targetId);
-    if (targetSection) {
-        targetSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth' });
 });
 
-// Optimized Scroll Listener
 window.addEventListener('scroll', () => {
-    // RequestAnimationFrame ensures UI updates stay in sync with display refresh rate
     window.requestAnimationFrame(updateButtons);
 });
 
-// Set initial state on page load
-window.addEventListener('DOMContentLoaded', updateButtons);
+// Set initial state
+updateButtons();
