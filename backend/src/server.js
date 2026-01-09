@@ -4,6 +4,7 @@ dotenv.config();
 const express = require("express");
 const path = require("path")
 const routes = require("../src/routes/routes");
+const pool = require("../config/db");
 
 // Initialize Express App
 const app = express();

@@ -6,18 +6,21 @@
     <title>Evimere Energy Technologies</title>
     <link rel="stylesheet" href="/css/home.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="image" href="/images/homepage.webp">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
 </head>
 <body>
     <main>
         <header>
             <nav class="navbar">
-                <div class="logo">EVIMERE ENERGY TECHNOLOGIES NIG. LTD</div>
+                <div class="logo">
+                    <img src="/images/logo.png" alt="Evimere Energy Logo" class="logo-image">
+                    EVIMERE ENERGY TECHNOLOGIES NIG. LTD
+                </div>
                 <ul class="nav-links">
                     <li><a href="/" class="active">HOME</a></li>
                     <li><a href="/about">ABOUT US</a></li>
                     <li><a href="/services">SERVICES</a></li>
-                    <!-- <li><a href="#">PROJECTS</a></li> -->
-                    <!-- <li><a href="#">CAREERS</a></li> -->
                     <li><a href="/contact">CONTACT</a></li>
                 </ul>
             </nav>
@@ -41,39 +44,67 @@
         </div>
     </section>
     <section id="services" class="page-section styles">
-        <div>
+        <div class="services-container">
             <h2>Our Services</h2>
-            <div class="service-cards">
+            <div class="service-cards"> 
+                
                 <div class="service-card">
-                    <h3>Renewable Energy Solutions</h3>
-                    <p>We design and implement solar, wind, and hydro energy systems tailored to your needs.</p>
+                    <h3>EPCI (Engineering, Procurement, Construction And Installation)</h3>
+                    <p>We provide end-to-end project management, delivering comprehensive energy infrastructure...</p>
                 </div>
+
                 <div class="service-card">
-                    <h3>Energy Efficiency Consulting</h3>
-                    <p>Our experts help you optimize energy use and reduce costs through innovative strategies.</p>
+                    <h3>Civil Works</h3>
+                    <p>We deliver robust structural engineering and site development services...</p>
                 </div>
+
                 <div class="service-card">
                     <h3>Sustainable Development Projects</h3>
-                    <p>We partner with communities and businesses to promote sustainable growth and environmental responsibility.</p>
+                    <p>We partner with communities and businesses to promote sustainable growth...</p>
                 </div>
-            </div>
-        </div>
+
+            </div> </div>
+    </section>
     <section id="contact" class="page-section styles">
         <div class="contact-container">
-            <h2>Contact Us</h2>
-            <p>Have questions or need more information? Reach out to us!</p>
-        <form id="contact-form" class="contact-form">
-            <div class="form-group">
-                <input type="text" placeholder="First Name" required>
+            <h2 class="section-title">CONTACT US</h2>
+            
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="info-block">
+                        <span class="label">LOCATION</span>
+                        <p>
+                            New Road, Plot 13, Road 7,<br>
+                            2nd Avenue Rumuakania II,<br>
+                            Off Ada George, Port Harcourt,<br>
+                            Nigeria
+                        </p>
+                </div>
+                    <div class="info-block">
+                        <span class="label">DIRECT EMAIL</span>
+                        <p><a href="mailto:info@evimere.com">info@evimere.com</a></p>
+                    </div>
+                    <div class="info-block">
+                        <span class="label">PHONE NUMBER</span>
+                        <p><a href="tel:+2348033106002">+234 803 310 6002</a></p>
+                    </div>
+                </div>
+
+                <form id="contact-form" class="contact-form">
+                    <div class="input-row">
+                        <div class="form-group">
+                            <input type="text" placeholder="First Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Email Address" required>
+                        </div>
+                    </div>
+                    <div class="form-group-full">
+                        <textarea rows="5" placeholder="How may we assist you..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">ENQUIRE NOW</button>
+                </form>
             </div>
-            <div class="form-group">
-                <input type="email" placeholder="Email Address" required>
-            </div>
-            <div class="form-group-full">
-                <textarea rows="5" placeholder="How can we help you?" required></textarea>
-            </div>
-            <button type="submit" class="btn-submit">ENQUIRE NOW</button>
-        </form>
         </div>
     </section>
     <div class="scroll-controls">
